@@ -194,4 +194,3 @@ def download_result(filename: str):
     if file_path.exists():
         return FileResponse(file_path, filename=filename)
     return JSONResponse(status_code=404, content={"error": "Datei nicht gefunden."})
-
