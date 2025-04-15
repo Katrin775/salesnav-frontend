@@ -1,9 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import SalesNavFrontendLive from "./SalesNavFrontendLive";
+import { createRoot } from "react-dom/client";
+import { SalesNavFrontendLive } from "./SalesNavFrontendLive";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+// Haupt-Render-Komponente für das Frontend
+const container = document.getElementById("root") as HTMLElement;
+const root = createRoot(container);
+
+root.render(
   <React.StrictMode>
     <SalesNavFrontendLive />
   </React.StrictMode>
