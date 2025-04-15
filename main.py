@@ -31,21 +31,42 @@ WARTEN_ZWISCHEN_FIRMEN = (5, 8)
 DEFAULT_FIELDS = ["Firma 1", "Firma (Gesamt)", "Name", "Aussteller", "Unternehmen"]
 
 POSITIONEN = {
-    "Marketing": ["Marketingleitung", "Leitung Performance Marketing", "Leitung Online Marketing", "Leitung Brand Management", "Leitung Digitale Projekte", "E-Commerce Leitung", "Personalmarketingleitung", "Leitung Employer Branding"],
-    "IT": ["IT-Leitung", "Leitung IT-Innovation", "IT-Prozessleitung", "Datenschutzbeauftragter", "IT-Admin", "Leitung Controlling", "EDV-Leitung", "Leitung IT-Sicherheit", "IT Projektleitung", "SAP-Leitung", "Chief Information Officer (CIO)"],
-    "HR": ["Personalleitung", "Leitung Personal Entwicklung", "BGM - Leitung", "Büroleitung", "Leitung Recruiting", "Leitung Buchhaltung"],
-    "GF": ["Geschäftsleitung", "Technische Geschäftsleitung", "Kaufmännische Geschäftsleitung", "Prokurist", "Assistenz der Geschäftsleitung", "COO (Chief Operating Officer)", "Geschäftsleitung (Stellvertretung)"],
-    "Produktion": ["Fertigungsleitung", "Lagerleitung", "Leitung Materialwirtschaft", "Leitung Produktion", "Leitung Produktion (Stellvertretung)", "Qualitätsleiter", "Leitung Fuhrpark", "Leitung Konfektionierung", "Leitung Versand", "Leitung Digital Transformation"]
+    "Marketing": [
+        "Marketingleitung", "Leitung Performance Marketing", "Leitung Online Marketing",
+        "Leitung Brand Management", "Leitung Digitale Projekte", "E-Commerce Leitung",
+        "Personalmarketingleitung", "Leitung Employer Branding"
+    ],
+    "IT": [
+        "IT-Leitung", "Leitung IT-Innovation", "IT-Prozessleitung", "Datenschutzbeauftragter",
+        "IT-Admin", "Leitung Controlling", "EDV-Leitung", "Leitung IT-Sicherheit",
+        "IT Projektleitung", "SAP-Leitung", "Chief Information Officer (CIO)"
+    ],
+    "HR": [
+        "Personalleitung", "Leitung Personal Entwicklung", "BGM - Leitung",
+        "Büroleitung", "Leitung Recruiting", "Leitung Buchhaltung"
+    ],
+    "GF": [
+        "Geschäftsleitung", "Technische Geschäftsleitung", "Kaufmännische Geschäftsleitung",
+        "Prokurist", "Assistenz der Geschäftsleitung", "COO (Chief Operating Officer)",
+        "Geschäftsleitung (Stellvertretung)"
+    ],
+    "Produktion": [
+        "Fertigungsleitung", "Lagerleitung", "Leitung Materialwirtschaft", "Leitung Produktion",
+        "Leitung Produktion (Stellvertretung)", "Qualitätsleiter", "Leitung Fuhrpark",
+        "Leitung Konfektionierung", "Leitung Versand", "Leitung Digital Transformation"
+    ]
 }
 
 def detect_firmenspalte(headers):
+    print(f"Spaltenüberschriften: {headers}")  # Logge alle Spaltenüberschriften
     for feld in DEFAULT_FIELDS:
         if feld in headers:
             return feld
     for header in headers:
         if any(kw in header.lower() for kw in ["firma", "company", "aussteller", "unternehmen"]):
+            print(f"ℹ️ Verwende '{header}' als Firmenspalte")  # Hier loggen wir, welche Spalte verwendet wird
             return header
-    return None
+    raise ValueError(f"Keine gültige Spalte für Firmennamen gefunden. Verfügbare Spalten: {headers}")
 
 def position_relevant(pos_text, relevante_keywords):
     if not relevante_keywords:
@@ -183,7 +204,7 @@ async def upload_csv(file: UploadFile = File(...), rollen: str = Form("")):
         result_path = run_enrichment(str(save_path), rollen_liste)
         return {"result_file": result_path.name}
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Fehler bei der Enrichment-Verarbeitung: {str(e)}"})
+        return JSONResponse(status_code=500, content={"error": f"Fehler beim Upload: {str(e)}"})
 
 @app.get("/result/{filename}")
 def download_result(filename: str):
