@@ -78,12 +78,13 @@ export default function SalesNavFrontendLive() {
           <CardContent className="space-y-4 p-6">
             <h1 className="text-2xl font-bold">Sales Navigator Scraper</h1>
             <div className="space-y-2">
-              <Label htmlFor="csv">CSV-Datei hochladen</Label>
+              <Label htmlFor="csv" className="block font-medium">CSV-Datei hochladen</Label>
               <Input
                 id="csv"
                 type="file"
                 accept=".csv"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="border border-gray-300 p-2 rounded"
               />
             </div>
 
@@ -105,19 +106,19 @@ export default function SalesNavFrontendLive() {
 
             <Button
               disabled={!file || uploading}
-              className="bg-mint-500 text-black hover:bg-mint-600"
+              className="bg-[#A4DED0] text-black px-4 py-2 rounded hover:bg-[#92c7ba]"
               onClick={handleUpload}
             >
               Starten
             </Button>
 
-            {uploading && <Progress value={progress} />}
+            {uploading && <div className="w-full bg-gray-200 rounded h-2"><div className="bg-[#78b2a7] h-2 rounded" style={{ width: `${progress}%` }}></div></div>}
 
             {resultUrl && (
               <div className="pt-4">
                 <a
                   href={resultUrl}
-                  className="underline text-mint-700"
+                  className="underline text-[#78b2a7]"
                   download
                 >
                   Ergebnis herunterladen
