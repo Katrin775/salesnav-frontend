@@ -194,16 +194,20 @@ def run_enrichment(input_file: str, rollen: list[str]) -> Path:
 
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...), rollen: str = Form("")):
-    uid = uuid.uuid4().hex[:8]
-    save_path = UPLOAD_DIR / f"{uid}_{file.filename}"
-    with save_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    rollen_liste = [r.strip() for r in rollen.split(",") if r.strip()]
     try:
+        uid = uuid.uuid4().hex[:8]
+        save_path = UPLOAD_DIR / f"{uid}_{file.filename}"
+        with save_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        rollen_liste = [r.strip() for r in rollen.split(",") if r.strip()]
+        print(f"Rollen: {rollen_liste}")  # Logge die empfangenen Rollen
+
         result_path = run_enrichment(str(save_path), rollen_liste)
         return {"result_file": result_path.name}
+    
     except Exception as e:
+        print(f"Fehler beim Verarbeiten der Datei: {e}")  # Logge den Fehler
         return JSONResponse(status_code=500, content={"error": f"Fehler beim Upload: {str(e)}"})
 
 @app.get("/result/{filename}")
