@@ -3,54 +3,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 
 const API_URL = "https://salesnav-enrich.onrender.com";
 
-const positionOptions = [
-  "Marketingleitung",
-  "Leitung Performance Marketing",
-  "Leitung Online Marketing",
-  "Leitung Brand Management",
-  "Leitung Digitale Projekte",
-  "E-Commerce Leitung",
-  "Personalmarketingleitung",
-  "Leitung Employer Branding",
-  "IT-Leitung",
-  "Leitung IT-Innovation",
-  "IT-Prozessleitung",
-  "Datenschutzbeauftragter",
-  "IT-Admin",
-  "Leitung Controlling",
-  "EDV-Leitung",
-  "Leitung IT-Sicherheit",
-  "IT Projektleitung",
-  "SAP-Leitung",
-  "Chief Information Officer (CIO)",
-  "Personalleitung",
-  "Leitung Personal Entwicklung",
-  "BGM - Leitung",
-  "Büroleitung",
-  "Leitung Recruiting",
-  "Leitung Buchhaltung",
-  "Geschäftsleitung",
-  "Technische Geschäftsleitung",
-  "Kaufmännische Geschäftsleitung",
-  "Prokurist",
-  "Assistenz der Geschäftsleitung",
-  "COO (Chief Operating Officer)",
-  "Geschäftsleitung (Stellvertretung)",
-  "Fertigungsleitung",
-  "Lagerleitung",
-  "Leitung Materialwirtschaft",
-  "Leitung Produktion",
-  "Leitung Produktion (Stellvertretung)",
-  "Qualitätsleiter",
-  "Leitung Fuhrpark",
-  "Leitung Konfektionierung",
-  "Leitung Versand",
-  "Leitung Digital Transformation"
-];
+// Positionen nach Kategorien gruppiert
+const positionKategorien = {
+  "Marketing": [
+    "Marketingleitung", "Leitung Performance Marketing", "Leitung Online Marketing",
+    "Leitung Brand Management", "Leitung Digitale Projekte", "E-Commerce Leitung",
+    "Personalmarketingleitung", "Leitung Employer Branding"
+  ],
+  "IT": [
+    "IT-Leitung", "Leitung IT-Innovation", "IT-Prozessleitung", "Datenschutzbeauftragter",
+    "IT-Admin", "Leitung Controlling", "EDV-Leitung", "Leitung IT-Sicherheit",
+    "IT Projektleitung", "SAP-Leitung", "Chief Information Officer (CIO)"
+  ],
+  "HR": [
+    "Personalleitung", "Leitung Personal Entwicklung", "BGM - Leitung",
+    "Büroleitung", "Leitung Recruiting", "Leitung Buchhaltung"
+  ],
+  "GF": [
+    "Geschäftsleitung", "Technische Geschäftsleitung", "Kaufmännische Geschäftsleitung",
+    "Prokurist", "Assistenz der Geschäftsleitung", "COO (Chief Operating Officer)",
+    "Geschäftsleitung (Stellvertretung)"
+  ],
+  "Produktion": [
+    "Fertigungsleitung", "Lagerleitung", "Leitung Materialwirtschaft", "Leitung Produktion",
+    "Leitung Produktion (Stellvertretung)", "Qualitätsleiter", "Leitung Fuhrpark",
+    "Leitung Konfektionierung", "Leitung Versand", "Leitung Digital Transformation"
+  ]
+};
 
 export default function SalesNavFrontendLive() {
   const [file, setFile] = useState<File | null>(null);
@@ -58,7 +40,7 @@ export default function SalesNavFrontendLive() {
   const [progress, setProgress] = useState(0);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [rollen, setRollen] = useState<string[]>([]);
+  const [ausgewaehlteKategorien, setAusgewaehlteKategorien] = useState<string[]>([]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -68,7 +50,7 @@ export default function SalesNavFrontendLive() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("rollen", rollen.join(","));
+    formData.append("rollen", ausgewaehlteKategorien.join(","));
 
     try {
       const res = await fetch(`${API_URL}/upload`, {
@@ -89,13 +71,12 @@ export default function SalesNavFrontendLive() {
     }
   };
 
-  const handleRollenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setRollen((prev) => {
-      if (prev.includes(value)) {
-        return prev.filter((r) => r !== value);
+  const handleKategorieChange = (kategorie: string) => {
+    setAusgewaehlteKategorien((prev) => {
+      if (prev.includes(kategorie)) {
+        return prev.filter((k) => k !== kategorie);
       } else {
-        return [...prev, value];
+        return [...prev, kategorie];
       }
     });
   };
@@ -125,18 +106,26 @@ export default function SalesNavFrontendLive() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Wählen Sie Positionen aus</Label>
-              {positionOptions.map((position) => (
-                <div key={position} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    value={position}
-                    onChange={handleRollenChange}
-                    checked={rollen.includes(position)}
-                    className="mr-2"
-                  />
-                  <span>{position}</span>
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Wählen Sie Positionskategorien</Label>
+              
+              {Object.keys(positionKategorien).map((kategorie) => (
+                <div key={kategorie} className="mb-2">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`kat-${kategorie}`}
+                      value={kategorie}
+                      onChange={() => handleKategorieChange(kategorie)}
+                      checked={ausgewaehlteKategorien.includes(kategorie)}
+                      className="mr-2 h-5 w-5"
+                    />
+                    <Label htmlFor={`kat-${kategorie}`} className="font-medium">{kategorie}</Label>
+                  </div>
+                  
+                  <div className="pl-6 mt-1 text-sm text-gray-600">
+                    {positionKategorien[kategorie].join(", ")}
+                  </div>
                 </div>
               ))}
             </div>
@@ -149,11 +138,18 @@ export default function SalesNavFrontendLive() {
               Starten
             </Button>
 
-            {uploading && <div className="w-full bg-gray-200 rounded h-2"><div className="bg-[#78b2a7] h-2 rounded" style={{ width: `${progress}%` }}></div></div>}
+            {uploading && (
+              <div className="w-full bg-gray-200 rounded h-2">
+                <div 
+                  className="bg-[#78b2a7] h-2 rounded" 
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            )}
 
             {resultUrl && (
               <div className="pt-4">
-                <a
+                
                   href={resultUrl}
                   className="underline text-[#78b2a7]"
                   download
